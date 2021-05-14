@@ -1,0 +1,16 @@
+browser -> server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+------browser note------
+js code prevents default form submit from happening
+js code adds the new note to the notes
+sends the new note to the server
+-----browser note ends----
+
+server -> browser: new_note_spa.json (with status code 201 in the header)
+
+---browser note---
+201 response code tells browser that new note is created on server studies
+browser makes no further requests
+---browser note ends---
+
+
