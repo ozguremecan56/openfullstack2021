@@ -1,15 +1,5 @@
 import Course from "./Course.js";
 
-const Total = (props) => {
-  const reducer = (accumulator, item) => {
-    return accumulator + item.exercises;
-  };
-
-  const total = props.parts.reduce(reducer, 0); //0 is accumulators value
-
-  return <p>Number of exercises {total}</p>;
-};
-
 const App = () => {
   const courses = [
     {
