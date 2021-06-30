@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import SearchBar from "./SearchBar";
+import CountryList from "./CountryList"
 import axios from "axios";
 
 function App() {
@@ -17,26 +19,15 @@ function App() {
     setSearchTerm(event.target.value);
   };
 
-  if (countries.length === 0) {
+  
     return (
       <div>
-        <div>
-          find countries <input onChange={handleInputChange} />
-        </div>
-        <div>Type a country name to search.</div>
+        <SearchBar onChange={handleInputChange}/>
+        <CountryList countries={countries}/>
       </div>
     );
-  } else if (countries.length > 10) {
-    return (
-      <div>
-        <div>
-          find countries <input onChange={handleInputChange} />
-          <div>Too many matches. Specify another filter.</div>
-        </div>
-      </div>
-    );
-  } else if (countries.length > 1 && countries.length < 10) {
-  }
 }
+  
+
 
 export default App;
