@@ -9,9 +9,11 @@ function App() {
 
   useEffect(() => {
     axios
-      .get("https://restcountries.eu/rest/v2/name/" + searchTerm)
+      .get("https://restcountries.eu/rest/v2/all/")
       .then((response) => {
-        setCountries(response.data);
+        
+        setCountries(response.data.filter(data=>data.name.toLowerCase().includes(searchTerm.toLowerCase())));
+        
       });
   });
 

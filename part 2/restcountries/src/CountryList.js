@@ -7,7 +7,7 @@ const CountryList = ({ countries }) => {
     return (
       <ul>
         {countries.map((country) => (
-          <Country country={country} />
+          <Country key={country.name} country={country} />
         ))}
       </ul>
     );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
 import PersonForm from "./PersonForm";
-import Persons from "./Persons";
+import PersonList from "./PersonList";
 import personService from "./services/infos.js";
 
 const App = () => {
@@ -9,6 +9,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNo, setNewNo] = useState("");
   const [filtered, setFiltered] = useState([]);
+  
 
   useEffect(() => {
     console.log("effect");
@@ -28,6 +29,7 @@ const App = () => {
   };
 
   const handleSearch = (event) => {
+    
     setFiltered(
       persons.filter((person) =>
         person.name.toLowerCase().includes(event.target.value.toLowerCase())
@@ -44,9 +46,15 @@ const App = () => {
         name: newName,
         number: newNo,
       };
-      setPersons(persons.concat(personObj));
-      setFiltered(persons.concat(personObj));
+      
       personService.create(personObj).then((response) => {
+        personService.getAll().then(response=>{
+          setPersons(response.data);
+          setFiltered(response.data)
+          
+        })
+        
+        
         console.log(response);
       });
     }
@@ -54,6 +62,19 @@ const App = () => {
     setNewName("");
     setNewNo("");
   };
+
+  const deletePerson = (id) => {
+    if(window.confirm("Do you really want to remove this person?")){
+      personService.remove(id).then((response)=>{
+        setFiltered(filtered.filter(element => element.id !== id))
+        setPersons(persons.filter(element => element.id !== id))
+        console.log(response)
+      });
+      
+    }
+    
+      
+  }
 
   return (
     <div>
@@ -68,7 +89,7 @@ const App = () => {
         noChange={handleNoChange}
       />
       <h2>Numbers</h2>
-      <Persons filtered={filtered} />
+      <PersonList filtered={filtered} handleDelete={deletePerson} />
     </div>
   );
 };
