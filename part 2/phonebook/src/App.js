@@ -2,21 +2,22 @@ import React, { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
 import PersonForm from "./PersonForm";
 import Persons from "./Persons";
-import axios from "axios";
+import personService from "./services/infos.js";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNo, setNewNo] = useState("");
-  const [filtered, setFiltered] = useState(persons);
+  const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
     console.log("effect");
-    axios.get("http://localhost:3001/persons").then((response) => {
+    personService.getAll().then((response) => {
       console.log("promise fullfilled");
       setPersons(response.data);
+      setFiltered(response.data);
     });
-  });
+  }, []);
 
   const handleInputChange = (event) => {
     setNewName(event.target.value);
@@ -44,7 +45,10 @@ const App = () => {
         number: newNo,
       };
       setPersons(persons.concat(personObj));
-      setFiltered(persons);
+      setFiltered(persons.concat(personObj));
+      personService.create(personObj).then((response) => {
+        console.log(response);
+      });
     }
 
     setNewName("");
