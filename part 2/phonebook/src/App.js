@@ -3,12 +3,14 @@ import SearchBar from "./SearchBar";
 import PersonForm from "./PersonForm";
 import PersonList from "./PersonList";
 import personService from "./services/infos.js";
+import Notification from "./Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNo, setNewNo] = useState("");
   const [filtered, setFiltered] = useState([]);
+  const [addedMessage, setMessage] = useState(null);
   
 
   useEffect(() => {
@@ -40,7 +42,29 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault();
     if (persons.some((person) => person.name === newName)) {
-      alert(newName + " is already added to phonebook.");
+      if(window.confirm(`Change ${newName}'s number with this one?`)){
+        const updatedPerson={
+          name:newName,
+          number:newNo
+        }
+        personService.update(persons.find(person=>person.name===newName).id,updatedPerson).then(response=>{
+          console.log(response.data)
+          personService.getAll().then(response=>{
+            setPersons(response.data);
+            setFiltered(response.data)
+            
+          })
+          setMessage(`${newName}'s number is updated.`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+        }).catch(error=>{
+          setMessage(`${newName} was already deleted from the server.`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+        })
+      }
     } else {
       const personObj = {
         name: newName,
@@ -53,7 +77,10 @@ const App = () => {
           setFiltered(response.data)
           
         })
-        
+        setMessage(`${newName} is added to phonebook.`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         
         console.log(response);
       });
@@ -79,6 +106,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={addedMessage}/>
       <SearchBar onChange={handleSearch} />
       <h2>add new entry</h2>
       <PersonForm
