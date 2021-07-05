@@ -2,12 +2,15 @@ const { response } = require("express");
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
+const cors = require("cors");
 
 app.use(express.json());
+app.use(express.static("build"));
 
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :data")
 );
+app.use(cors());
 
 morgan.token("data", function (req, res) {
   return JSON.stringify(req.body);
@@ -93,12 +96,12 @@ app.post("/api/phones", (request, response) => {
     number: body.number,
   };
 
-  phones = phones.concat(phone);
+  phones.push(phone);
 
   response.json(phone);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
