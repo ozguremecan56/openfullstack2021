@@ -43,20 +43,23 @@ app.get("/api/phones/:id", (req, res) => {
     })
     .catch((error) => {
       console.log(error);
-      response.status(500).end();
+      response.status(400).send({ error: "malformatted id" });
     });
 });
 
 app.get("/info", (req, res) => {
-  res.send(`<p>Phonebook has info for ${phones.length} people.</p>
-            <p>${new Date()}</p>`);
+  Phone.find({}).then((phone) => {
+    res.send(`<p>Phonebook has info for ${phone.length} people.</p>
+  <p>${new Date()}</p>`);
+  });
 });
 
 app.delete("/api/phones/:id", (request, response) => {
-  const id = Number(request.params.id);
-  phones = phones.filter((phone) => phone.id !== id);
-
-  response.status(204).end();
+  Phone.findByIdAndRemove(request.params.id)
+    .then((result) => response.status(204).end())
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 app.post("/api/phones", (request, response) => {
@@ -76,6 +79,21 @@ app.post("/api/phones", (request, response) => {
   phone.save().then((savedPhone) => {
     response.json(savedPhone);
   });
+});
+
+app.put("/api/phones/:id", (request, response) => {
+  const body = request.body;
+  const phone = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Phone.findByIdAndUpdate(request.params.id, phone, { new: true })
+    .then((updatedPhone) => {
+      //new true makes mongo return the updated obj
+      response.json(updatedPhone);
+    })
+    .catch((error) => console.log(error));
 });
 
 app.listen(PORT, () => {

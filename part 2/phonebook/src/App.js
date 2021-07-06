@@ -11,7 +11,6 @@ const App = () => {
   const [newNo, setNewNo] = useState("");
   const [filtered, setFiltered] = useState([]);
   const [addedMessage, setMessage] = useState(null);
-  
 
   useEffect(() => {
     console.log("effect");
@@ -31,7 +30,6 @@ const App = () => {
   };
 
   const handleSearch = (event) => {
-    
     setFiltered(
       persons.filter((person) =>
         person.name.toLowerCase().includes(event.target.value.toLowerCase())
@@ -42,46 +40,51 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault();
     if (persons.some((person) => person.name === newName)) {
-      if(window.confirm(`Change ${newName}'s number with this one?`)){
-        const updatedPerson={
-          name:newName,
-          number:newNo
-        }
-        personService.update(persons.find(person=>person.name===newName).id,updatedPerson).then(response=>{
-          console.log(response.data)
-          personService.getAll().then(response=>{
-            setPersons(response.data);
-            setFiltered(response.data)
-            
+      if (window.confirm(`Change ${newName}'s number with this one?`)) {
+        const updatedPerson = {
+          name: newName,
+          number: newNo,
+        };
+        personService
+          .update(
+            persons.find((person) => person.name === newName).id,
+            updatedPerson
+          )
+          .then((response) => {
+            console.log(response.data);
+            personService.getAll().then((response) => {
+              setPersons(response.data);
+              setFiltered(response.data);
+            });
+            setMessage(`${newName}'s number is updated.`);
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
           })
-          setMessage(`${newName}'s number is updated.`)
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
-        }).catch(error=>{
-          setMessage(`${newName} was already deleted from the server.`)
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
-        })
+          .catch((error) => {
+            console.log(error);
+            setMessage(`${newName} was already deleted from the server.`);
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
+          });
       }
     } else {
       const personObj = {
         name: newName,
         number: newNo,
       };
-      
+
       personService.create(personObj).then((response) => {
-        personService.getAll().then(response=>{
+        personService.getAll().then((response) => {
           setPersons(response.data);
-          setFiltered(response.data)
-          
-        })
-        setMessage(`${newName} is added to phonebook.`)
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
-        
+          setFiltered(response.data);
+        });
+        setMessage(`${newName} is added to phonebook.`);
+        setTimeout(() => {
+          setMessage(null);
+        }, 5000);
+
         console.log(response);
       });
     }
@@ -91,22 +94,19 @@ const App = () => {
   };
 
   const deletePerson = (id) => {
-    if(window.confirm("Do you really want to remove this person?")){
-      personService.remove(id).then((response)=>{
-        setFiltered(filtered.filter(element => element.id !== id))
-        setPersons(persons.filter(element => element.id !== id))
-        console.log(response)
+    if (window.confirm("Do you really want to remove this person?")) {
+      personService.remove(id).then((response) => {
+        setFiltered(filtered.filter((element) => element.id !== id));
+        setPersons(persons.filter((element) => element.id !== id));
+        console.log(response);
       });
-      
     }
-    
-      
-  }
+  };
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={addedMessage}/>
+      <Notification message={addedMessage} />
       <SearchBar onChange={handleSearch} />
       <h2>add new entry</h2>
       <PersonForm
