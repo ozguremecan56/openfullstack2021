@@ -1,8 +1,11 @@
 const { response } = require("express");
 const express = require("express");
-const app = express();
+const Sentry = require("@sentry/node");
+const Tracing = require("@sentry/tracing");
 const morgan = require("morgan");
 const cors = require("cors");
+
+const app = express();
 
 require("dotenv").config();
 
@@ -32,7 +35,7 @@ app.get("/api/phones", (req, res) => {
   });
 });
 
-app.get("/api/phones/:id", (req, res) => {
+app.get("/api/phones/:id", (req, res, next) => {
   Phone.findById(req.params.id)
     .then((phone) => {
       if (phone) {
@@ -41,10 +44,7 @@ app.get("/api/phones/:id", (req, res) => {
         res.status(404).end();
       }
     })
-    .catch((error) => {
-      console.log(error);
-      response.status(400).send({ error: "malformatted id" });
-    });
+    .catch((error) => next(error));
 });
 
 app.get("/info", (req, res) => {
@@ -76,9 +76,18 @@ app.post("/api/phones", (request, response) => {
     number: body.number,
   });
 
-  phone.save().then((savedPhone) => {
-    response.json(savedPhone);
-  });
+  phone
+    .save()
+    .then((savedPhone) => {
+      response.json(savedPhone);
+    })
+    .catch(() => {
+      return response
+        .status(500)
+        .json({
+          error: "name must be unique and min 3 chars, phone min 8 chars",
+        });
+    });
 });
 
 app.put("/api/phones/:id", (request, response) => {
@@ -95,6 +104,18 @@ app.put("/api/phones/:id", (request, response) => {
     })
     .catch((error) => console.log(error));
 });
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
