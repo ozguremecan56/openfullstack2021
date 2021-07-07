@@ -75,18 +75,26 @@ const App = () => {
         number: newNo,
       };
 
-      personService.create(personObj).then((response) => {
-        personService.getAll().then((response) => {
-          setPersons(response.data);
-          setFiltered(response.data);
-        });
-        setMessage(`${newName} is added to phonebook.`);
-        setTimeout(() => {
-          setMessage(null);
-        }, 5000);
+      personService
+        .create(personObj)
+        .then((response) => {
+          personService.getAll().then((response) => {
+            setPersons(response.data);
+            setFiltered(response.data);
+          });
+          setMessage(`${newName} is added to phonebook.`);
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
 
-        console.log(response);
-      });
+          console.log(response);
+        })
+        .catch((error) => {
+          setMessage("name or number error");
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+        });
     }
 
     setNewName("");
